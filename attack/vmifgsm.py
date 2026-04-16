@@ -1,0 +1,70 @@
+import torch
+import torch.nn as nn
+
+
+class LinfVMIFGSMAttack(object):
+    def __init__(self, model, device, eps=8 / 255, alpha=2 / 255, steps=10, decay=1.0, N=5, beta=3 / 2):
+        self.model = model
+        self.eps = eps
+        self.steps = steps
+        self.decay = decay
+        self.alpha = alpha
+        self.N = N
+        self.beta = beta
+        self.device = device
+
+    def perturb(self, images, labels):
+        r"""
+        Overridden.
+        """
+
+        images = images.clone().detach().to(self.device)
+        labels = labels.clone().detach().to(self.device)
+
+        momentum = torch.zeros_like(images).detach().to(self.device)
+        v = torch.zeros_like(images).detach().to(self.device)
+        loss = nn.CrossEntropyLoss()
+        adv_images = images.clone().detach()
+
+        for _ in range(self.steps):
+            adv_images.requires_grad = True
+            outputs = self.model(adv_images)
+            outputs = nn.functional.softmax(outputs, dim=1)
+
+            # Calculate loss
+            cost = loss(outputs, labels)
+
+            # Update adversarial images
+            adv_grad = torch.autograd.grad(
+                cost, adv_images, retain_graph=False, create_graph=False
+            )[0]
+
+            grad = (adv_grad + v) / torch.mean(
+                torch.abs(adv_grad + v), dim=(1, 2, 3), keepdim=True
+            )
+            grad = grad + momentum * self.decay
+            momentum = grad
+
+            # Calculate Gradient Variance
+            GV_grad = torch.zeros_like(images).detach().to(self.device)
+            for _ in range(self.N):
+                neighbor_images = adv_images.detach() + torch.randn_like(
+                    images
+                ).uniform_(-self.eps * self.beta, self.eps * self.beta)
+                neighbor_images.requires_grad = True
+                outputs = self.model(neighbor_images)
+                outputs = nn.functional.softmax(outputs, dim=1)
+
+                # Calculate loss
+                cost = loss(outputs, labels)
+                GV_grad += torch.autograd.grad(
+                    cost, neighbor_images, retain_graph=False, create_graph=False
+                )[0]
+            # obtaining the gradient variance
+            v = GV_grad / self.N - adv_grad
+
+            adv_images = adv_images.detach() + self.alpha * grad.sign()
+            delta = torch.clamp(adv_images - images, min=-self.eps, max=self.eps)
+            adv_images = torch.clamp(images + delta, min=0, max=1).detach()
+
+        return adv_images
