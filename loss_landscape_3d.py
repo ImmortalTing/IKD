@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # 3D 支持
 
-from attack import create_attackers, MODEL_CONFIG
+from attack_main import create_attackers, MODEL_CONFIG
 import timm
 from torchvision.transforms import ToTensor, Resize, Compose
 from PIL import Image
