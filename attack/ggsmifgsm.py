@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class LinfGGSMIFGSMAttack:
@@ -65,6 +66,7 @@ class LinfGGSMIFGSMAttack:
                 x_sample.requires_grad = True
 
                 outputs = self.model(x_sample)
+                outputs = F.softmax(outputs, dim=1)
 
                 loss = self.loss(outputs, labels)
 

@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class LinfVMIFGSMAttack(object):
@@ -29,7 +30,7 @@ class LinfVMIFGSMAttack(object):
         for _ in range(self.steps):
             adv_images.requires_grad = True
             outputs = self.model(adv_images)
-            outputs = nn.functional.softmax(outputs, dim=1)
+            outputs = F.softmax(outputs, dim=1)
 
             # Calculate loss
             cost = loss(outputs, labels)
@@ -53,7 +54,7 @@ class LinfVMIFGSMAttack(object):
                 ).uniform_(-self.eps * self.beta, self.eps * self.beta)
                 neighbor_images.requires_grad = True
                 outputs = self.model(neighbor_images)
-                outputs = nn.functional.softmax(outputs, dim=1)
+                outputs = F.softmax(outputs, dim=1)
 
                 # Calculate loss
                 cost = loss(outputs, labels)

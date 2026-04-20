@@ -54,11 +54,11 @@ class LinfFDTIFGSMAttack(object):
                 adv_images.requires_grad = True
                 adv_outputs, benign_outputs = self.input_diversity(adv_images, benign_images)
                 benign_outputs = self.model(benign_outputs)
-                benign_outputs = nn.functional.softmax(benign_outputs, dim=1)
-                adv_outputs = self.model(adv_outputs)
-                adv_outputs = nn.functional.softmax(adv_outputs, dim=1)
+                benign_outputs = F.softmax(benign_outputs, dim=1)
+                adv_logits = self.model(adv_outputs)
+                adv_softmax = F.softmax(adv_logits, dim=1)
                 # Calculate loss
-                cost = loss(adv_outputs, labels) + self.weight * regularization(adv_outputs, benign_outputs)
+                cost = loss(adv_softmax, labels) + self.weight * regularization(adv_logits, benign_outputs)
 
                 # Update adversarial images
                 grad = torch.autograd.grad(
@@ -87,11 +87,11 @@ class LinfFDTIFGSMAttack(object):
                 adv_images.requires_grad = True
                 adv_outputs, benign_outputs = self.input_diversity(adv_images, benign_images)
                 benign_outputs = self.model(benign_outputs)
-                benign_outputs = nn.functional.softmax(benign_outputs, dim=1)
-                adv_outputs = self.model(adv_outputs)
-                adv_outputs = nn.functional.softmax(adv_outputs, dim=1)
+                benign_outputs = F.softmax(benign_outputs, dim=1)
+                adv_logits = self.model(adv_outputs)
+                adv_softmax = F.softmax(adv_logits, dim=1)
                 # Calculate loss
-                cost = loss(adv_outputs, labels) + self.weight * regularization(adv_outputs, benign_outputs)
+                cost = loss(adv_softmax, labels) + self.weight * regularization(adv_logits, benign_outputs)
 
                 # Update adversarial images
                 grad = torch.autograd.grad(
@@ -120,12 +120,12 @@ class LinfFDTIFGSMAttack(object):
                 adv_images.requires_grad = True
                 adv_outputs, benign_outputs = self.input_diversity(adv_images, benign_images)
                 benign_outputs = self.model(benign_outputs)
-                benign_outputs = nn.functional.softmax(benign_outputs, dim=1)
-                adv_outputs = self.model(adv_outputs)
-                adv_outputs = nn.functional.softmax(adv_outputs, dim=1)
-                log_adv_outputs = torch.log(adv_outputs)
+                benign_outputs = F.softmax(benign_outputs, dim=1)
+                adv_logits = self.model(adv_outputs)
+                adv_softmax = F.softmax(adv_logits, dim=1)
+                log_adv_outputs = F.log_softmax(adv_logits, dim=1)
                 # Calculate loss
-                cost = loss(adv_outputs, labels) + self.weight * regularization(log_adv_outputs, benign_outputs)
+                cost = loss(adv_softmax, labels) + self.weight * regularization(log_adv_outputs, benign_outputs)
 
                 # Update adversarial images
                 grad = torch.autograd.grad(

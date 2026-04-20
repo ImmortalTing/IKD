@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class LinfSINIFGSMAttack(object):
@@ -35,7 +36,7 @@ class LinfSINIFGSMAttack(object):
             for i in torch.arange(self.m):
                 nes_images = nes_image / torch.pow(2, i)
                 outputs = self.model(nes_images)
-                outputs = nn.functional.softmax(outputs, dim=1)
+                outputs = F.softmax(outputs, dim=1)
                 # Calculate loss
                 cost = loss(outputs, labels)
                 adv_grad += torch.autograd.grad(

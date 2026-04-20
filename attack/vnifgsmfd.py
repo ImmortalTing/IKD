@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class LinfFDVNIFGSMAttack(object):
@@ -31,15 +32,15 @@ class LinfFDVNIFGSMAttack(object):
         if self.regularization == 'CE':
             regularization = nn.CrossEntropyLoss()
             benign_outputs = self.model(images)
-            benign_outputs = nn.functional.softmax(benign_outputs, dim=1)
+            benign_outputs = F.softmax(benign_outputs, dim=1)
             for _ in range(self.steps):
                 adv_images.requires_grad = True
                 nes_images = adv_images + self.decay * self.alpha * momentum
-                adv_outputs = self.model(nes_images)
-                adv_outputs = nn.functional.softmax(adv_outputs, dim=1)
+                adv_logits = self.model(nes_images)
+                adv_softmax = F.softmax(adv_logits, dim=1)
 
                 # Calculate loss
-                cost = loss(adv_outputs, labels) + self.weight * regularization(adv_outputs, benign_outputs)
+                cost = loss(adv_softmax, labels) + self.weight * regularization(adv_logits, benign_outputs)
 
                 # Update adversarial images
                 adv_grad = torch.autograd.grad(
@@ -59,11 +60,11 @@ class LinfFDVNIFGSMAttack(object):
                         images
                     ).uniform_(-self.eps * self.beta, self.eps * self.beta)
                     neighbor_images.requires_grad = True
-                    adv_outputs = self.model(neighbor_images)
-                    adv_outputs = nn.functional.softmax(adv_outputs, dim=1)
+                    adv_logits = self.model(neighbor_images)
+                    adv_softmax = F.softmax(adv_logits, dim=1)
 
                     # Calculate loss
-                    cost = loss(adv_outputs, labels) + self.weight * regularization(adv_outputs, benign_outputs)
+                    cost = loss(adv_softmax, labels) + self.weight * regularization(adv_logits, benign_outputs)
                     GV_grad += torch.autograd.grad(
                         cost, neighbor_images, retain_graph=False, create_graph=False
                     )[0]
@@ -77,15 +78,15 @@ class LinfFDVNIFGSMAttack(object):
         if self.regularization == 'MSE':
             regularization = nn.MSELoss()
             benign_outputs = self.model(images)
-            benign_outputs = nn.functional.softmax(benign_outputs, dim=1)
+            benign_outputs = F.softmax(benign_outputs, dim=1)
             for _ in range(self.steps):
                 adv_images.requires_grad = True
                 nes_images = adv_images + self.decay * self.alpha * momentum
-                adv_outputs = self.model(nes_images)
-                adv_outputs = nn.functional.softmax(adv_outputs, dim=1)
+                adv_logits = self.model(nes_images)
+                adv_softmax = F.softmax(adv_logits, dim=1)
 
                 # Calculate loss
-                cost = loss(adv_outputs, labels) + self.weight * regularization(adv_outputs, benign_outputs)
+                cost = loss(adv_softmax, labels) + self.weight * regularization(adv_logits, benign_outputs)
 
                 # Update adversarial images
                 adv_grad = torch.autograd.grad(
@@ -105,11 +106,11 @@ class LinfFDVNIFGSMAttack(object):
                         images
                     ).uniform_(-self.eps * self.beta, self.eps * self.beta)
                     neighbor_images.requires_grad = True
-                    adv_outputs = self.model(neighbor_images)
-                    adv_outputs = nn.functional.softmax(adv_outputs, dim=1)
+                    adv_logits = self.model(neighbor_images)
+                    adv_softmax = F.softmax(adv_logits, dim=1)
 
                     # Calculate loss
-                    cost = loss(adv_outputs, labels) + self.weight * regularization(adv_outputs, benign_outputs)
+                    cost = loss(adv_softmax, labels) + self.weight * regularization(adv_logits, benign_outputs)
                     GV_grad += torch.autograd.grad(
                         cost, neighbor_images, retain_graph=False, create_graph=False
                     )[0]
@@ -123,16 +124,16 @@ class LinfFDVNIFGSMAttack(object):
         if self.regularization == 'KL':
             regularization = nn.KLDivLoss(reduction="batchmean")
             benign_outputs = self.model(images)
-            benign_outputs = nn.functional.softmax(benign_outputs, dim=1)
+            benign_outputs = F.softmax(benign_outputs, dim=1)
             for _ in range(self.steps):
                 adv_images.requires_grad = True
                 nes_images = adv_images + self.decay * self.alpha * momentum
-                adv_outputs = self.model(nes_images)
-                adv_outputs = nn.functional.softmax(adv_outputs, dim=1)
-                log_adv_outputs = torch.log(adv_outputs)
+                adv_logits = self.model(nes_images)
+                adv_softmax = F.softmax(adv_logits, dim=1)
+                log_adv_outputs = F.log_softmax(adv_logits, dim=1)
 
                 # Calculate loss
-                cost = loss(adv_outputs, labels) + self.weight * regularization(log_adv_outputs, benign_outputs)
+                cost = loss(adv_softmax, labels) + self.weight * regularization(log_adv_outputs, benign_outputs)
 
                 # Update adversarial images
                 adv_grad = torch.autograd.grad(
@@ -152,12 +153,12 @@ class LinfFDVNIFGSMAttack(object):
                         images
                     ).uniform_(-self.eps * self.beta, self.eps * self.beta)
                     neighbor_images.requires_grad = True
-                    adv_outputs = self.model(neighbor_images)
-                    adv_outputs = nn.functional.softmax(adv_outputs, dim=1)
-                    log_adv_outputs = torch.log(adv_outputs)
+                    adv_logits = self.model(neighbor_images)
+                    adv_softmax = F.softmax(adv_logits, dim=1)
+                    log_adv_outputs = F.log_softmax(adv_logits, dim=1)
 
                     # Calculate loss
-                    cost = loss(adv_outputs, labels) + self.weight * regularization(log_adv_outputs, benign_outputs)
+                    cost = loss(adv_softmax, labels) + self.weight * regularization(log_adv_outputs, benign_outputs)
                     GV_grad += torch.autograd.grad(
                         cost, neighbor_images, retain_graph=False, create_graph=False
                     )[0]

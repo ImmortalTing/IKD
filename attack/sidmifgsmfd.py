@@ -130,7 +130,7 @@ class LinfFDSIDMIFGSMAttack:
         if self.regularization == 'CE':
             regularization = nn.CrossEntropyLoss()
             benign_outputs = self.model(images)
-            benign_outputs = nn.functional.softmax(benign_outputs, dim=1)
+            benign_outputs = F.softmax(benign_outputs, dim=1)
 
             for _ in range(self.steps):
                 grad_sum = torch.zeros_like(adv_images)
@@ -142,9 +142,9 @@ class LinfFDSIDMIFGSMAttack:
                     )
                     x_t.requires_grad_(True)
 
-                    adv_outputs = self.model(x_t)
-                    adv_outputs = nn.functional.softmax(adv_outputs, dim=1)
-                    cost = loss(adv_outputs, labels) + self.weight * regularization(adv_outputs, benign_outputs)
+                    adv_logits = self.model(x_t)
+                    adv_softmax = F.softmax(adv_logits, dim=1)
+                    cost = loss(adv_softmax, labels) + self.weight * regularization(adv_logits, benign_outputs)
                     # loss = F.cross_entropy(adv_outputs, y)
                     grad = torch.autograd.grad(cost, x_t)[0]
 
@@ -162,7 +162,7 @@ class LinfFDSIDMIFGSMAttack:
         elif self.regularization == 'MSE':
             regularization = nn.MSELoss()
             benign_outputs = self.model(images)
-            benign_outputs = nn.functional.softmax(benign_outputs, dim=1)
+            benign_outputs = F.softmax(benign_outputs, dim=1)
 
             for _ in range(self.steps):
                 grad_sum = torch.zeros_like(adv_images)
@@ -174,9 +174,9 @@ class LinfFDSIDMIFGSMAttack:
                     )
                     x_t.requires_grad_(True)
 
-                    adv_outputs = self.model(x_t)
-                    adv_outputs = nn.functional.softmax(adv_outputs, dim=1)
-                    cost = loss(adv_outputs, labels) + self.weight * regularization(adv_outputs, benign_outputs)
+                    adv_logits = self.model(x_t)
+                    adv_softmax = F.softmax(adv_logits, dim=1)
+                    cost = loss(adv_softmax, labels) + self.weight * regularization(adv_logits, benign_outputs)
                     # loss = F.cross_entropy(adv_outputs, y)
                     grad = torch.autograd.grad(cost, x_t)[0]
 
@@ -194,7 +194,7 @@ class LinfFDSIDMIFGSMAttack:
         elif self.regularization == 'KL':
             regularization = nn.KLDivLoss(reduction="batchmean")
             benign_outputs = self.model(images)
-            benign_outputs = nn.functional.softmax(benign_outputs, dim=1)
+            benign_outputs = F.softmax(benign_outputs, dim=1)
 
             for _ in range(self.steps):
                 grad_sum = torch.zeros_like(adv_images)
@@ -206,10 +206,10 @@ class LinfFDSIDMIFGSMAttack:
                     )
                     x_t.requires_grad_(True)
 
-                    adv_outputs = self.model(x_t)
-                    adv_outputs = nn.functional.softmax(adv_outputs, dim=1)
-                    log_adv_outputs = torch.log(adv_outputs)
-                    cost = loss(adv_outputs, labels) + self.weight * regularization(log_adv_outputs, benign_outputs)
+                    adv_logits = self.model(x_t)
+                    adv_softmax = F.softmax(adv_logits, dim=1)
+                    log_adv_outputs = F.log_softmax(adv_logits, dim=1)
+                    cost = loss(adv_softmax, labels) + self.weight * regularization(log_adv_outputs, benign_outputs)
                     # loss = F.cross_entropy(adv_outputs, y)
                     grad = torch.autograd.grad(cost, x_t)[0]
 

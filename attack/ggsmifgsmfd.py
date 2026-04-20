@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class LinfFDGGSMIFGSMAttack(object):
@@ -36,7 +37,7 @@ class LinfFDGGSMIFGSMAttack(object):
         # clean prediction
         with torch.no_grad():
             clean_logits = self.model(images)
-            clean_prob = torch.softmax(clean_logits, dim=1)
+            clean_prob = F.softmax(clean_logits, dim=1)
 
         if self.regularization == "MSE":
             reg = nn.MSELoss()
@@ -73,24 +74,24 @@ class LinfFDGGSMIFGSMAttack(object):
 
                 logits = self.model(x_sample)
 
-                prob = torch.softmax(logits, dim=1)
+                prob = F.softmax(logits, dim=1)
 
                 # ---------- FD loss ----------
-                attack_loss = CE(logits, labels)
+                attack_loss = CE(prob, labels)
 
                 if self.regularization == "KL":
 
-                    log_prob = torch.log_softmax(logits, dim=1)
+                    log_prob = F.log_softmax(logits, dim=1)
 
                     reg_loss = reg(log_prob, clean_prob)
 
                 elif self.regularization == "CE":
 
-                    reg_loss = reg(prob, clean_prob)
+                    reg_loss = reg(logits, clean_prob)
 
                 else:
 
-                    reg_loss = reg(prob, clean_prob)
+                    reg_loss = reg(logits, clean_prob)
 
                 loss = attack_loss + self.weight * reg_loss
 

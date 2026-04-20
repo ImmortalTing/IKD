@@ -129,7 +129,8 @@ class LinfSIDMIFGSMAttack:
                 x_t.requires_grad_(True)
 
                 logits = self.model(x_t)
-                loss = F.cross_entropy(logits, y)
+                softmax = F.softmax(logits, dim=1)
+                loss = F.cross_entropy(softmax, y)
                 grad = torch.autograd.grad(loss, x_t)[0]
 
                 grad_sum += grad

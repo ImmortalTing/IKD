@@ -48,7 +48,7 @@ class LinfTIFGSMAttack(object):
         for _ in range(self.steps):
             adv_images.requires_grad = True
             outputs = self.model(self.input_diversity(adv_images))
-            outputs = nn.functional.softmax(outputs, dim=1)
+            outputs = F.softmax(outputs, dim=1)
             # Calculate loss
             cost = loss(outputs, labels)
 

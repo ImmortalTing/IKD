@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class LinfNIFGSMAttack(object):
@@ -30,7 +31,7 @@ class LinfNIFGSMAttack(object):
             adv_images.requires_grad = True
             nes_images = adv_images + self.decay * self.alpha * momentum
             outputs = self.model(nes_images)
-            outputs = nn.functional.softmax(outputs, dim=1)
+            outputs = F.softmax(outputs, dim=1)
             # Calculate loss
             cost = loss(outputs, labels)
 
