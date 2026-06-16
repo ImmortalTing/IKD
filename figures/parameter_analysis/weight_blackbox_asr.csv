@@ -1,4 +1,4 @@
-method,weight,blackbox_fd_asr,blackbox_base_asr,source_model,regularization,seed,num_blackbox_targets
+method,weight,blackbox_ikd_asr,blackbox_base_asr,source_model,regularization,seed,num_blackbox_targets
 mifgsm,0.001,49.9867,47.5400,resnet50,KL,1111,15
 mifgsm,0.01,50.0933,47.5400,resnet50,KL,1111,15
 mifgsm,0.1,50.2067,47.5400,resnet50,KL,1111,15

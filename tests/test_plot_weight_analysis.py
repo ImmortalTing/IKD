@@ -162,7 +162,7 @@ class PlotWeightAnalysisTests(unittest.TestCase):
 
         self.assertEqual(summary.num_targets, 2)
         self.assertEqual(summary.base_asr, 20.0)
-        self.assertEqual(summary.fd_asr, 30.0)
+        self.assertEqual(summary.ikd_asr, 30.0)
 
     def test_collect_method_records_raises_for_missing_weight_log(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -223,10 +223,10 @@ class PlotWeightAnalysisTests(unittest.TestCase):
                 seed="1111",
                 weights=[0.01, 1.0],
                 baseline_weight=1.0,
-            )
+        )
 
         self.assertEqual([record.weight for record in records], [0.01, 1.0])
-        self.assertEqual([record.blackbox_fd_asr for record in records], [25.0, 70.0])
+        self.assertEqual([record.blackbox_ikd_asr for record in records], [25.0, 70.0])
         self.assertEqual([record.blackbox_base_asr for record in records], [60.0, 60.0])
 
 

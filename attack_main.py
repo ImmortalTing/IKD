@@ -62,16 +62,16 @@ MODEL_CONFIG = {
 
 # ---------------------------- 攻击类配置 ----------------------------
 ATTACK_CLASSES = {
-    'mifgsm': {'base': LinfMIFGSMAttack, 'fd': LinfFDMIFGSMAttack},
-    'difgsm': {'base': LinfDIFGSMAttack, 'fd': LinfFDDIFGSMAttack},
-    'tifgsm': {'base': LinfTIFGSMAttack, 'fd': LinfFDTIFGSMAttack},
-    'nifgsm': {'base': LinfNIFGSMAttack, 'fd': LinfFDNIFGSMAttack},
-    'sinifgsm': {'base': LinfSINIFGSMAttack, 'fd': LinfFDSINIFGSMAttack},
-    'vmifgsm': {'base': LinfVMIFGSMAttack, 'fd': LinfFDVMIFGSMAttack},
-    'vnifgsm': {'base': LinfVNIFGSMAttack, 'fd': LinfFDVNIFGSMAttack},
-    'bsrmifgsm': {'base': LinfBSRAttack, 'fd': LinfFDBSRAttack},
-    'sidmifgsm': {'base': LinfSIDMIFGSMAttack, 'fd': LinfFDSIDMIFGSMAttack},
-    'ggsmifgsm': {'base': LinfGGSMIFGSMAttack, 'fd': LinfFDGGSMIFGSMAttack},
+    'mifgsm': {'base': LinfMIFGSMAttack, 'ikd': LinfFDMIFGSMAttack},
+    'difgsm': {'base': LinfDIFGSMAttack, 'ikd': LinfFDDIFGSMAttack},
+    'tifgsm': {'base': LinfTIFGSMAttack, 'ikd': LinfFDTIFGSMAttack},
+    'nifgsm': {'base': LinfNIFGSMAttack, 'ikd': LinfFDNIFGSMAttack},
+    'sinifgsm': {'base': LinfSINIFGSMAttack, 'ikd': LinfFDSINIFGSMAttack},
+    'vmifgsm': {'base': LinfVMIFGSMAttack, 'ikd': LinfFDVMIFGSMAttack},
+    'vnifgsm': {'base': LinfVNIFGSMAttack, 'ikd': LinfFDVNIFGSMAttack},
+    'bsrmifgsm': {'base': LinfBSRAttack, 'ikd': LinfFDBSRAttack},
+    'sidmifgsm': {'base': LinfSIDMIFGSMAttack, 'ikd': LinfFDSIDMIFGSMAttack},
+    'ggsmifgsm': {'base': LinfGGSMIFGSMAttack, 'ikd': LinfFDGGSMIFGSMAttack},
 }
 
 
@@ -190,7 +190,7 @@ def create_attackers(args, model, device):
     attack_cls = ATTACK_CLASSES[args.attack]
     return (
         attack_cls['base'](model=model, device=device, **attack_params),
-        attack_cls['fd'](args, model=model, device=device, **attack_params)
+        attack_cls['ikd'](args, model=model, device=device, **attack_params)
     )
 
 
@@ -218,7 +218,7 @@ def build_eval_cache(args, dataloader, device):
     source_model = freeze_model(
         timm.create_model(MODEL_CONFIG[args.model], pretrained=True).to(device)
     )
-    adversary, fdadversary = create_attackers(args, source_model, device)
+    adversary, ikd_adversary = create_attackers(args, source_model, device)
 
     use_cuda = device == 'cuda'
     cached_batches = []
@@ -239,21 +239,21 @@ def build_eval_cache(args, dataloader, device):
 
         with torch.enable_grad():
             adv = adversary.perturb(inputs, targets)
-            fdadv = fdadversary.perturb(inputs, targets)
+            ikd_adv = ikd_adversary.perturb(inputs, targets)
 
         cached_adv = adv.detach().cpu()
-        cached_fdadv = fdadv.detach().cpu()
+        cached_ikd_adv = ikd_adv.detach().cpu()
         if use_cuda:
             cached_adv = cached_adv.pin_memory()
-            cached_fdadv = cached_fdadv.pin_memory()
+            cached_ikd_adv = cached_ikd_adv.pin_memory()
 
         cached_batches.append(
-            (cached_inputs, cached_adv, cached_fdadv, cached_targets)
+            (cached_inputs, cached_adv, cached_ikd_adv, cached_targets)
         )
 
-        del inputs, targets, adv, fdadv
+        del inputs, targets, adv, ikd_adv
 
-    del source_model, adversary, fdadversary
+    del source_model, adversary, ikd_adversary
     if use_cuda:
         torch.cuda.empty_cache()
 
@@ -264,13 +264,13 @@ def evaluate_cached_batches(target_model, cached_batches, device):
     use_cuda = device == 'cuda'
     benign_correct = 0
     adv_correct = 0
-    fdadv_correct = 0
+    ikd_adv_correct = 0
 
     with torch.inference_mode():
-        for inputs_cpu, adv_cpu, fdadv_cpu, targets_cpu in tqdm(cached_batches):
+        for inputs_cpu, adv_cpu, ikd_adv_cpu, targets_cpu in tqdm(cached_batches):
             inputs = inputs_cpu.to(device, non_blocking=use_cuda)
             adv = adv_cpu.to(device, non_blocking=use_cuda)
-            fdadv = fdadv_cpu.to(device, non_blocking=use_cuda)
+            ikd_adv = ikd_adv_cpu.to(device, non_blocking=use_cuda)
             targets = targets_cpu.to(device, non_blocking=use_cuda)
 
             outputs = target_model(inputs)
@@ -281,13 +281,13 @@ def evaluate_cached_batches(target_model, cached_batches, device):
             _, pred = outputs.max(1)
             adv_correct += pred.eq(targets).sum().item()
 
-            outputs = target_model(fdadv)
+            outputs = target_model(ikd_adv)
             _, pred = outputs.max(1)
-            fdadv_correct += pred.eq(targets).sum().item()
+            ikd_adv_correct += pred.eq(targets).sum().item()
 
-            del inputs, adv, fdadv, targets, outputs, pred
+            del inputs, adv, ikd_adv, targets, outputs, pred
 
-    return benign_correct, adv_correct, fdadv_correct
+    return benign_correct, adv_correct, ikd_adv_correct
 
 
 
@@ -310,7 +310,7 @@ def test(args, out_path):
             target_model = freeze_model(
                 timm.create_model(MODEL_CONFIG[target_name], pretrained=True).to(device)
             )
-            benign_correct, adv_correct, fdadv_correct = evaluate_cached_batches(
+            benign_correct, adv_correct, ikd_adv_correct = evaluate_cached_batches(
                 target_model, cached_batches, device
             )
 
@@ -318,7 +318,7 @@ def test(args, out_path):
             results[target_name] = {
                 'benign_acc': 100. * benign_correct / total,
                 'adv_acc': 100. * adv_correct / total,
-                'fdadv_acc': 100. * fdadv_correct / total
+                'fdadv_acc': 100. * ikd_adv_correct / total
             }
             append_result_row(result_file, target_name, results[target_name])
 
@@ -334,7 +334,7 @@ def test(args, out_path):
         print(f"{name}:")
         print(f"  Benign Acc: {data['benign_acc']:.2f}% | ASR: {100 - data['benign_acc']:.2f}%")
         print(f"  Adv Acc: {data['adv_acc']:.2f}% | ASR: {100 - data['adv_acc']:.2f}%")
-        print(f"  FDAdv Acc: {data['fdadv_acc']:.2f}% | ASR: {100 - data['fdadv_acc']:.2f}%")
+        print(f"  IKDAdv Acc: {data['fdadv_acc']:.2f}% | ASR: {100 - data['fdadv_acc']:.2f}%")
         print("-" * 50)
 
     return results

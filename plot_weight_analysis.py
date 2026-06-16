@@ -88,7 +88,7 @@ class AsrMetrics:
 @dataclass(frozen=True)
 class BlackboxSummary:
     base_asr: float
-    fd_asr: float
+    ikd_asr: float
     num_targets: int
 
 
@@ -96,7 +96,7 @@ class BlackboxSummary:
 class WeightRecord:
     method: str
     weight: float
-    blackbox_fd_asr: float
+    blackbox_ikd_asr: float
     blackbox_base_asr: float
     source_model: str
     regularization: str
@@ -159,7 +159,7 @@ def summarize_blackbox_asr(metrics_by_model, source_model):
     return BlackboxSummary(
         base_asr=sum(metrics.adv_asr for metrics in blackbox_metrics)
         / len(blackbox_metrics),
-        fd_asr=sum(metrics.fdadv_asr for metrics in blackbox_metrics)
+        ikd_asr=sum(metrics.fdadv_asr for metrics in blackbox_metrics)
         / len(blackbox_metrics),
         num_targets=len(blackbox_metrics),
     )
@@ -231,7 +231,7 @@ def collect_method_records(
             WeightRecord(
                 method=method,
                 weight=float(weight),
-                blackbox_fd_asr=summary.fd_asr,
+                blackbox_ikd_asr=summary.ikd_asr,
                 blackbox_base_asr=baseline_summary.base_asr,
                 source_model=source_model,
                 regularization=regularization,
@@ -272,7 +272,7 @@ def write_summary_csv(records_by_method, csv_path):
     fieldnames = [
         "method",
         "weight",
-        "blackbox_fd_asr",
+        "blackbox_ikd_asr",
         "blackbox_base_asr",
         "source_model",
         "regularization",
@@ -289,7 +289,7 @@ def write_summary_csv(records_by_method, csv_path):
                     {
                         "method": record.method,
                         "weight": format_weight_label(record.weight),
-                        "blackbox_fd_asr": f"{record.blackbox_fd_asr:.4f}",
+                        "blackbox_ikd_asr": f"{record.blackbox_ikd_asr:.4f}",
                         "blackbox_base_asr": f"{record.blackbox_base_asr:.4f}",
                         "source_model": record.source_model,
                         "regularization": record.regularization,
@@ -319,7 +319,7 @@ def build_figure_output_paths(output_dir, output_prefix):
 def compute_y_limits(records_by_method):
     values = []
     for records in records_by_method.values():
-        values.extend(record.blackbox_fd_asr for record in records)
+        values.extend(record.blackbox_ikd_asr for record in records)
         values.extend(record.blackbox_base_asr for record in records)
 
     if not values:
@@ -355,14 +355,14 @@ def plot_method_group(
     for method in method_group:
         records = records_by_method[method]
         x_values = [record.weight for record in records]
-        fd_values = [record.blackbox_fd_asr for record in records]
+        ikd_values = [record.blackbox_ikd_asr for record in records]
         baseline = records[0].blackbox_base_asr
         color = METHOD_COLORS[method]
         marker = METHOD_MARKERS[method]
 
         ax.plot(
             x_values,
-            fd_values,
+            ikd_values,
             color=color,
             marker=marker,
             linewidth=LINE_WIDTH,

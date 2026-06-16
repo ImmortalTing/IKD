@@ -5,12 +5,12 @@ from pathlib import Path
 
 from plot_fd_ablation import (
     DEFAULT_METHODS,
-    FD_METHODS,
-    FD_METHOD_COLORS,
-    FD_METHOD_DISPLAY_LABELS,
     FIGURE_SIZE,
+    IKD_METHODS,
+    IKD_METHOD_COLORS,
+    IKD_METHOD_DISPLAY_LABELS,
     METHOD_GROUPS,
-    FdAblationRecord,
+    IkdAblationRecord,
     build_figure_output_paths,
     collect_method_records,
     compute_y_limits,
@@ -45,8 +45,8 @@ def write_log(root, method, source_model, regularization, seed, weight, rows):
     return log_path
 
 
-class PlotFdAblationTests(unittest.TestCase):
-    def test_method_groups_and_fd_method_order_match_requested_ablation(self):
+class PlotIkdAblationTests(unittest.TestCase):
+    def test_method_groups_and_ikd_method_order_match_requested_ablation(self):
         self.assertEqual(
             METHOD_GROUPS,
             (
@@ -66,13 +66,13 @@ class PlotFdAblationTests(unittest.TestCase):
                 "vnifgsm",
             ),
         )
-        self.assertEqual(FD_METHODS, ("w/o FD", "MSE", "CE", "KL"))
+        self.assertEqual(IKD_METHODS, ("w/o IKD", "MSE", "CE", "KL"))
 
-    def test_fd_method_colors_use_requested_palette(self):
+    def test_ikd_method_colors_use_requested_palette(self):
         self.assertEqual(
-            FD_METHOD_COLORS,
+            IKD_METHOD_COLORS,
             {
-                "w/o FD": "#989A9C",
+                "w/o IKD": "#989A9C",
                 "MSE": "#F7D08D",
                 "CE": "#BF83A5",
                 "KL": "#8684B0",
@@ -80,33 +80,33 @@ class PlotFdAblationTests(unittest.TestCase):
         )
         self.assertEqual(FIGURE_SIZE, (3.35, 2.25))
 
-    def test_fd_method_display_labels_use_ikd_wording(self):
+    def test_ikd_method_display_labels_use_ikd_wording(self):
         self.assertEqual(
-            tuple(FD_METHOD_DISPLAY_LABELS[fd_method] for fd_method in FD_METHODS),
+            tuple(IKD_METHOD_DISPLAY_LABELS[method] for method in IKD_METHODS),
             ("w/o IKD", "MSE", "CE", "KL"),
         )
 
-    def test_build_figure_output_paths_uses_fd_ablation_group_suffixes(self):
+    def test_build_figure_output_paths_uses_ikd_ablation_group_suffixes(self):
         paths = build_figure_output_paths(
             output_dir=Path("figures/parameter_analysis"),
-            output_prefix="fd_ablation_blackbox_asr",
+            output_prefix="ikd_ablation_blackbox_asr",
         )
 
         self.assertEqual(
             [(path.pdf_path.name, path.png_path.name) for path in paths],
             [
                 (
-                    "fd_ablation_blackbox_asr_group1.pdf",
-                    "fd_ablation_blackbox_asr_group1.png",
+                    "ikd_ablation_blackbox_asr_group1.pdf",
+                    "ikd_ablation_blackbox_asr_group1.png",
                 ),
                 (
-                    "fd_ablation_blackbox_asr_group2.pdf",
-                    "fd_ablation_blackbox_asr_group2.png",
+                    "ikd_ablation_blackbox_asr_group2.pdf",
+                    "ikd_ablation_blackbox_asr_group2.png",
                 ),
             ],
         )
 
-    def test_collect_method_records_uses_base_asr_for_without_fd_and_fd_asr_for_regularizers(self):
+    def test_collect_method_records_uses_base_asr_for_without_ikd_and_ikd_asr_for_regularizers(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             write_log(
                 tmpdir,
@@ -156,7 +156,7 @@ class PlotFdAblationTests(unittest.TestCase):
                 weight=0.01,
             )
 
-        self.assertEqual([record.fd_method for record in records], list(FD_METHODS))
+        self.assertEqual([record.ikd_method for record in records], list(IKD_METHODS))
         self.assertEqual(
             [record.blackbox_asr for record in records],
             [20.0, 50.0, 80.0, 90.0],
@@ -189,18 +189,18 @@ class PlotFdAblationTests(unittest.TestCase):
             csv_path = Path(tmpdir) / "summary.csv"
             records_by_method = {
                 "mifgsm": [
-                    FdAblationRecord(
+                    IkdAblationRecord(
                         method="mifgsm",
-                        fd_method="w/o FD",
+                        ikd_method="w/o IKD",
                         blackbox_asr=47.54,
                         source_model="resnet50",
                         seed="1111",
                         weight=0.01,
                         num_blackbox_targets=15,
                     ),
-                    FdAblationRecord(
+                    IkdAblationRecord(
                         method="mifgsm",
-                        fd_method="MSE",
+                        ikd_method="MSE",
                         blackbox_asr=21.9467,
                         source_model="resnet50",
                         seed="1111",
@@ -220,7 +220,7 @@ class PlotFdAblationTests(unittest.TestCase):
             [
                 {
                     "method": "mifgsm",
-                    "fd_method": "w/o FD",
+                    "ikd_method": "w/o IKD",
                     "blackbox_asr": "47.5400",
                     "source_model": "resnet50",
                     "seed": "1111",
@@ -229,7 +229,7 @@ class PlotFdAblationTests(unittest.TestCase):
                 },
                 {
                     "method": "mifgsm",
-                    "fd_method": "MSE",
+                    "ikd_method": "MSE",
                     "blackbox_asr": "21.9467",
                     "source_model": "resnet50",
                     "seed": "1111",
@@ -242,8 +242,12 @@ class PlotFdAblationTests(unittest.TestCase):
     def test_compute_y_limits_starts_at_zero_and_rounds_maximum_up(self):
         records_by_method = {
             "mifgsm": [
-                FdAblationRecord("mifgsm", "w/o FD", 47.54, "resnet50", "1111", 0.01, 15),
-                FdAblationRecord("mifgsm", "KL", 69.01, "resnet50", "1111", 0.01, 15),
+                IkdAblationRecord(
+                    "mifgsm", "w/o IKD", 47.54, "resnet50", "1111", 0.01, 15
+                ),
+                IkdAblationRecord(
+                    "mifgsm", "KL", 69.01, "resnet50", "1111", 0.01, 15
+                ),
             ]
         }
 

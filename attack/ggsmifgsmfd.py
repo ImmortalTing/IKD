@@ -76,7 +76,7 @@ class LinfFDGGSMIFGSMAttack(object):
 
                 prob = F.softmax(logits, dim=1)
 
-                # ---------- FD loss ----------
+                # ---------- IKD loss ----------
                 attack_loss = CE(prob, labels)
 
                 if self.regularization == "KL":
