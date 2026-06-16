@@ -1,2 +1,0 @@
-resnet50_benign_acc: 96.0000, resnet50_benign_asr: 4.0000, resnet50_adv_acc: 0.1000, resnet50_adv_asr: 99.9000, resnet50_fdadv_acc: 0.0000, resnet50_fdadv_asr: 100.0000
-densenet121_benign_acc: 91.1000, densenet121_benign_asr: 8.9000, densenet121_adv_acc: 35.1000, densenet121_adv_asr: 64.9000, densenet121_fdadv_acc: 30.6000, densenet121_fdadv_asr: 69.4000

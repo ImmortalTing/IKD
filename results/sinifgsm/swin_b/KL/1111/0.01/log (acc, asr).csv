@@ -1,0 +1,16 @@
+resnet50_benign_acc: 96.0000, resnet50_benign_asr: 4.0000, resnet50_adv_acc: 53.1000, resnet50_adv_asr: 46.9000, resnet50_fdadv_acc: 57.2000, resnet50_fdadv_asr: 42.8000
+densenet121_benign_acc: 91.1000, densenet121_benign_asr: 8.9000, densenet121_adv_acc: 52.2000, densenet121_adv_asr: 47.8000, densenet121_fdadv_acc: 53.9000, densenet121_fdadv_asr: 46.1000
+resnext50_benign_acc: 98.8000, resnext50_benign_asr: 1.2000, resnext50_adv_acc: 58.7000, resnext50_adv_asr: 41.3000, resnext50_fdadv_acc: 61.0000, resnext50_fdadv_asr: 39.0000
+vgg19bn_benign_acc: 71.5000, vgg19bn_benign_asr: 28.5000, vgg19bn_adv_acc: 24.0000, vgg19bn_adv_asr: 76.0000, vgg19bn_fdadv_acc: 26.2000, vgg19bn_fdadv_asr: 73.8000
+incres_v2_benign_acc: 95.7000, incres_v2_benign_asr: 4.3000, incres_v2_adv_acc: 71.7000, incres_v2_adv_asr: 28.3000, incres_v2_fdadv_acc: 72.7000, incres_v2_fdadv_asr: 27.3000
+inc_v3_benign_acc: 85.2000, inc_v3_benign_asr: 14.8000, inc_v3_adv_acc: 56.0000, inc_v3_adv_asr: 44.0000, inc_v3_fdadv_acc: 57.1000, inc_v3_fdadv_asr: 42.9000
+inc_v4_benign_acc: 94.0000, inc_v4_benign_asr: 6.0000, inc_v4_adv_acc: 63.5000, inc_v4_adv_asr: 36.5000, inc_v4_fdadv_acc: 66.3000, inc_v4_fdadv_asr: 33.7000
+resnet101_benign_acc: 98.5000, resnet101_benign_asr: 1.5000, resnet101_adv_acc: 65.5000, resnet101_adv_asr: 34.5000, resnet101_fdadv_acc: 66.4000, resnet101_fdadv_asr: 33.6000
+resnet152_benign_acc: 98.8000, resnet152_benign_asr: 1.2000, resnet152_adv_acc: 67.1000, resnet152_adv_asr: 32.9000, resnet152_fdadv_acc: 69.3000, resnet152_fdadv_asr: 30.7000
+adv_inception_v3_benign_acc: 88.9000, adv_inception_v3_benign_asr: 11.1000, adv_inception_v3_adv_acc: 70.6000, adv_inception_v3_adv_asr: 29.4000, adv_inception_v3_fdadv_acc: 69.4000, adv_inception_v3_fdadv_asr: 30.6000
+ens_adv_inception_resnet_v2_benign_acc: 93.8000, ens_adv_inception_resnet_v2_benign_asr: 6.2000, ens_adv_inception_resnet_v2_adv_acc: 84.2000, ens_adv_inception_resnet_v2_adv_asr: 15.8000, ens_adv_inception_resnet_v2_fdadv_acc: 84.7000, ens_adv_inception_resnet_v2_fdadv_asr: 15.3000
+visformer_small_benign_acc: 97.9000, visformer_small_benign_asr: 2.1000, visformer_small_adv_acc: 53.5000, visformer_small_adv_asr: 46.5000, visformer_small_fdadv_acc: 55.9000, visformer_small_fdadv_asr: 44.1000
+vit_b_benign_acc: 97.8000, vit_b_benign_asr: 2.2000, vit_b_adv_acc: 68.5000, vit_b_adv_asr: 31.5000, vit_b_fdadv_acc: 72.5000, vit_b_fdadv_asr: 27.5000
+swin_b_benign_acc: 98.0000, swin_b_benign_asr: 2.0000, swin_b_adv_acc: 0.0000, swin_b_adv_asr: 100.0000, swin_b_fdadv_acc: 0.0000, swin_b_fdadv_asr: 100.0000
+pit_b_benign_acc: 97.9000, pit_b_benign_asr: 2.1000, pit_b_adv_acc: 54.9000, pit_b_adv_asr: 45.1000, pit_b_fdadv_acc: 57.6000, pit_b_fdadv_asr: 42.4000
+mobilenet_benign_acc: 55.8000, mobilenet_benign_asr: 44.2000, mobilenet_adv_acc: 37.4000, mobilenet_adv_asr: 62.6000, mobilenet_fdadv_acc: 37.2000, mobilenet_fdadv_asr: 62.8000

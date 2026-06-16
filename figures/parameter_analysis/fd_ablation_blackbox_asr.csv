@@ -1,0 +1,29 @@
+method,fd_method,blackbox_asr,source_model,seed,weight,num_blackbox_targets
+mifgsm,w/o FD,47.5400,resnet50,1111,0.01,15
+mifgsm,MSE,21.9467,resnet50,1111,0.01,15
+mifgsm,CE,50.0933,resnet50,1111,0.01,15
+mifgsm,KL,50.0933,resnet50,1111,0.01,15
+difgsm,w/o FD,62.2733,resnet50,1111,0.01,15
+difgsm,MSE,26.4467,resnet50,1111,0.01,15
+difgsm,CE,64.6067,resnet50,1111,0.01,15
+difgsm,KL,64.6000,resnet50,1111,0.01,15
+tifgsm,w/o FD,49.5867,resnet50,1111,0.01,15
+tifgsm,MSE,23.9000,resnet50,1111,0.01,15
+tifgsm,CE,52.2667,resnet50,1111,0.01,15
+tifgsm,KL,52.2733,resnet50,1111,0.01,15
+nifgsm,w/o FD,51.3133,resnet50,1111,0.01,15
+nifgsm,MSE,31.2000,resnet50,1111,0.01,15
+nifgsm,CE,53.9333,resnet50,1111,0.01,15
+nifgsm,KL,53.9333,resnet50,1111,0.01,15
+sinifgsm,w/o FD,57.2200,resnet50,1111,0.01,15
+sinifgsm,MSE,39.7000,resnet50,1111,0.01,15
+sinifgsm,CE,62.6933,resnet50,1111,0.01,15
+sinifgsm,KL,62.6933,resnet50,1111,0.01,15
+vmifgsm,w/o FD,66.3067,resnet50,1111,0.01,15
+vmifgsm,MSE,31.3000,resnet50,1111,0.01,15
+vmifgsm,CE,67.6067,resnet50,1111,0.01,15
+vmifgsm,KL,67.6067,resnet50,1111,0.01,15
+vnifgsm,w/o FD,67.6133,resnet50,1111,0.01,15
+vnifgsm,MSE,36.4533,resnet50,1111,0.01,15
+vnifgsm,CE,69.0000,resnet50,1111,0.01,15
+vnifgsm,KL,69.0000,resnet50,1111,0.01,15
